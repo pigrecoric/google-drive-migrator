@@ -11,8 +11,8 @@ def recursiveCopyInto(gauth, fID_from, fID_to, maxdepth=float('infinity'), __cur
         return
 
     result = gauth.service.files().get(fileId=fID_from).execute()
-    print '  ' * __currentDepth + 'Recursively copying "%s" (id: %s)' % (result['title'], result['id'])
-    print '  ' * __currentDepth + 'into id: %s' % fID_to
+    print( '  ' * __currentDepth + 'Recursively copying "%s" (id: %s)' % (result['title'], result['id']))
+    print( '  ' * __currentDepth + 'into id: %s' % fID_to)
 
 
     # Go through children with pagination
@@ -23,7 +23,7 @@ def recursiveCopyInto(gauth, fID_from, fID_to, maxdepth=float('infinity'), __cur
         # result = gauth.service.children().list(folderId=fID_from).execute()
         for child in result['items']:
             if child['kind'] != 'drive#file':
-                print 'Unknown object type (not file or folder): "%s"' % child['kind']
+                print('Unknown object type (not file or folder): "%s"' % child['kind'])
                 pp(child)
 
             if child['mimeType'] == 'application/vnd.google-apps.folder':
@@ -37,9 +37,9 @@ def recursiveCopyInto(gauth, fID_from, fID_to, maxdepth=float('infinity'), __cur
                 pp(exists_check)
 
                 if exists_check['items'] == []:
-                    print '  ' * (__currentDepth+1) + 'Trying to create folder "%s"' % child['title']
+                    print('  ' * (__currentDepth+1) + 'Trying to create folder "%s"' % child['title'])
                     new_folder = gauth.service.files().insert(body=data_new_folder).execute()
-                    print '  ' * (__currentDepth+1) + 'Created folder "%s" (id: %s) in "%s" (id: %s)' % (new_folder['title'], new_folder['id'], child['title'], child['id'])
+                    print('  ' * (__currentDepth+1) + 'Created folder "%s" (id: %s) in "%s" (id: %s)' % (new_folder['title'], new_folder['id'], child['title'], child['id']))
                 else:
                     new_folder = exists_check['items'][0]
                 recursiveCopyInto(gauth, child['id'], new_folder['id'], maxdepth=maxdepth, __currentDepth=__currentDepth+1)
@@ -54,15 +54,15 @@ def recursiveCopyInto(gauth, fID_from, fID_to, maxdepth=float('infinity'), __cur
                 exists_check = gauth.service.files().list(q='title = "%s" and "%s" in parents and trashed = false' % (child['title'].replace('"', '\\"'), fID_to)).execute()
 
                 if exists_check['items'] == []:
-                    print '  ' * (__currentDepth+1) + 'Trying to copy "%s"' % child['title']
+                    print('  ' * (__currentDepth+1) + 'Trying to copy "%s"' % child['title'])
                     try:
                         new_file = gauth.service.files().copy(fileId=child['id'], body=copied_file).execute()
-                        print '  ' * (__currentDepth+1) + 'Copied file "%s"' % new_file['title']
+                        print('  ' * (__currentDepth+1) + 'Copied file "%s"' % new_file['title'])
                     except googleapiclient.errors.HttpError as e:
-                        print 'Failed: %s\n trying again' % e
+                        print('Failed: %s\n trying again' % e)
                         new_file = gauth.service.files().copy(fileId=child['id'], body=copied_file).execute()
                 else:
-                    print 'file "%s" already exists in destination folder "%s"' % (child['title'], fID_to)
+                    print('file "%s" already exists in destination folder "%s"' % (child['title'], fID_to))
 
 
         # Get page
