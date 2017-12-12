@@ -14,10 +14,10 @@ def recursiveCopyInto(gauth, fID_from, fID_to, maxdepth=float('infinity'), __cur
     print( '  ' * __currentDepth + 'Recursively copying "%s" (id: %s)' % (result['title'], result['id']))
     print( '  ' * __currentDepth + 'into id: %s' % fID_to)
 
-
+    # Check the first page of results before the while statement
+    result = gauth.service.files().list(q='"%s" in parents and trashed = false' % fID_from).execute()
     # Go through children with pagination
     while True:
-        result = gauth.service.files().list(q='"%s" in parents and trashed = false' % fID_from).execute()
         # Alternative way to get children:
         #   (returns `drive#childReference` instead of `drive#file`)
         # result = gauth.service.children().list(folderId=fID_from).execute()
@@ -64,11 +64,14 @@ def recursiveCopyInto(gauth, fID_from, fID_to, maxdepth=float('infinity'), __cur
                 else:
                     print('file "%s" already exists in destination folder "%s"' % (child['title'], fID_to))
 
-
-        # Get page
+        # Just for debug purposes, write that the current page is ended
+        print('End of the current page')
         page_token = result.get('nextPageToken')
         if not page_token:
             break
+        else:
+            # Get again the results with the upgraded page
+            result = gauth.service.files().list(q='"%s" in parents and trashed = false' % fID_from, pageToken='%s' % page_token).execute()
 
 if __name__ == '__main__':
     import argparse
