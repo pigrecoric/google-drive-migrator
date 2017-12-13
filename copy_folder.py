@@ -10,7 +10,7 @@ def recursiveCopyInto(gauth, fID_from, fID_to, maxdepth=float('infinity'), __cur
     if __currentDepth > maxdepth:
         return
 
-    result = gauth.service.files().get(fileId=fID_from, includeTeamDriveItems='true', supportsTeamDrives='true').execute()
+    result = gauth.service.files().get(fileId=fID_from,  supportsTeamDrives='true').execute()
     print( '  ' * __currentDepth + 'Recursively copying "%s" (id: %s)' % (result['title'], result['id']))
     print( '  ' * __currentDepth + 'into id: %s' % fID_to)
 
@@ -56,11 +56,11 @@ def recursiveCopyInto(gauth, fID_from, fID_to, maxdepth=float('infinity'), __cur
                 if exists_check['items'] == []:
                     print('  ' * (__currentDepth+1) + 'Trying to copy "%s"' % child['title'])
                     try:
-                        new_file = gauth.service.files().copy(fileId=child['id'], body=copied_file, includeTeamDriveItems='true', supportsTeamDrives='true').execute()
+                        new_file = gauth.service.files().copy(fileId=child['id'], body=copied_file, supportsTeamDrives='true').execute()
                         print('  ' * (__currentDepth+1) + 'Copied file "%s"' % new_file['title'])
                     except googleapiclient.errors.HttpError as e:
                         print('Failed: %s\n trying again' % e)
-                        new_file = gauth.service.files().copy(fileId=child['id'], body=copied_file, includeTeamDriveItems='true', supportsTeamDrives='true').execute()
+                        new_file = gauth.service.files().copy(fileId=child['id'], body=copied_file, supportsTeamDrives='true').execute()
                 else:
                     print('file "%s" already exists in destination folder "%s"' % (child['title'], fID_to))
 
